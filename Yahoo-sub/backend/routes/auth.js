@@ -62,15 +62,15 @@ router.post('/login', async (req, res) => {
   if(subuser === null) {
     return res.status(400).send('購入されていないか、使用期限が切れています。');
   }
-  console.log(subuser.endDate, cur_day);
+  // console.log(subuser.endDate, cur_day);
 
   //CREATING TOKEN
   //token is send with a parameter(for now: id is send) that can be accessed in the frontend
   //along with a secret token value stored in dotenv
   const userStatus = await LoginUser.findOne({email: req.body.email});
-  if(userStatus.loginStatus === 1) {
-    return res.status(400).send('複数のデバイスで利用できません。'); 
-  }
+  // if(userStatus.loginStatus === 1) {
+  //   return res.status(400).send('複数のデバイスで利用できません。'); 
+  // }
 
   if(subuser && subuser.endDate > cur_day) {
     userStatus.loginStatus = 1;
@@ -101,7 +101,7 @@ router.post('/logout', async (req, res) => {
     userStatus.loginStatus = 0;
     await userStatus.save();
   } catch(error) {
-    console.log("logout error");
+    // console.log("logout error");
   }
   res.status(200).send("ログアウトしました。");
 });
@@ -110,7 +110,7 @@ let RepassUser = require('../models/repassmodel.js');
 const nodemailer = require('nodemailer');
 
 router.post('/sendApproveNumber', async (req, res) => {
-  const email = req.body.email;console.log(email);
+  const email = req.body.email;// console.log(email);
   try {
     const approve =  Math.floor(Math.random() * 1000000);
     const repassuser = await RepassUser.findOne({email: email});
@@ -142,14 +142,14 @@ router.post('/sendApproveNumber', async (req, res) => {
       
       mailTransporter.sendMail(mailDetails, function(err, data) {
           if(err) {
-              console.log('Error Occurs');
+              // console.log('Error Occurs');
           } else {
-              console.log('Email sent successfully');
+              // console.log('Email sent successfully');
               res.status(200).send('success');
           }
       });
   } catch(error) {
-    console.log("logout error");
+    // console.log("logout error");
   }
   res.status(200).send("ログアウトしました。");
 });
@@ -189,7 +189,7 @@ router.post('/repass', async (req, res) => {
     } 
   }
   catch(error) {
-    console.log("error in repass");
+    // console.log("error in repass");
   }
 });
 
@@ -207,14 +207,14 @@ router.post('/mercari', async (req, res) => {
     const end = await subUser.findOne({email});
     const cur_day = new Date();
 
-    console.log(end.endDate, cur_day);
+    // console.log(end.endDate, cur_day);
 
     if(end.endDate === null || end.endDate === undefined || end.endDate === "null" || end.endDate < cur_day) {
       res.json("expired");
       return ;
     }
   } catch (error) {
-    console.log("error in endDate");
+    // console.log("error in endDate");
   }
 
   let lineToken = req.body.token;
@@ -224,7 +224,8 @@ try{
   const browser = await puppeteer.launch({
     "headless": true,
     "args": ["--fast-start", "--disable-extensions", "--no-sandbox","--lang=ja-JP,ja"],
-    "ignoreHTTPSErrors": true
+    "ignoreHTTPSErrors": true,
+    headless: "new",
   });
   const page = await browser.newPage();
   await page.setExtraHTTPHeaders({ 
@@ -249,7 +250,7 @@ try{
   let image_url = [];
   let search_title = [];
   let flag = 0;
-  console.log("OK",data.length);
+  // console.log("OK",data.length);
   for(let i = 0 ; i < data.length; i++) {
     let part = data[i];
     let notifyTitle = part.Title;
@@ -268,7 +269,7 @@ try{
           await page.goto(targetURL);
           break;
         } catch (error) {
-          console.log("error in url");
+          // console.log("error in url");
         }
       }       
       const len = name_rlt.length;   
@@ -278,7 +279,7 @@ try{
       const user_email = req.body.email;
       const no = i; 
       const preProducts = await Product.findOne({user_email, no});
-      console.log(req.body.email);
+      // console.log(req.body.email);
       
       let products;   
       let products_price;
@@ -289,19 +290,19 @@ try{
         try {flg++;
           products =  await page.$$eval('.itemName__a6f874a2', elements=> elements.map(item=>item.textContent));
     
-          console.log("select1");
+          // console.log("select1");
           products_price =  await page.$$eval('.number__6b270ca7', elements=> elements.map(item=>item.textContent));
       
-          console.log("select2");
+          // console.log("select2");
           url = await page.$$eval('[data-testid="thumbnail-link"]', anchors => [].map.call(anchors, a => a.href));
 
-          console.log("select3");
+          // console.log("select3");
           imageurl = await page.$$eval("picture > img", anchors => [].map.call(anchors, img => img.src));
 
           if(products.length === 0 || products_price.length === 0 || url.length === 0 || imageurl.length === 0) continue;
           break;   
         } catch(error) {
-          console.log(error);
+          // console.log(error);
         }
       }
 
@@ -312,9 +313,9 @@ try{
 
             preProducts.pro_URL = JSON.stringify(url);
             preProducts.last_URL = url[0];
-            // console.log(url);
+            // // console.log(url);
             await preProducts.save();
-            console.log(i, "success!", products.length);
+            // console.log(i, "success!", products.length);
 
             for(let j = 0 ; j < Math.min(products.length, 10); j++) {
               name_rlt[j + len] = products[j];
@@ -335,7 +336,7 @@ try{
 
           else {
             const L = url.length;
-            console.log(url.length);
+            // console.log(url.length);
             let j;
             const pre_url = JSON.parse(preProducts.pro_URL);
             let Tsign = 0;
@@ -360,9 +361,9 @@ try{
                       imageFullsize: imageurl[k].split("?")[0]
                     }
                   }).then(() => {
-                    console.log('send completed!');
+                    // console.log('send completed!');
                   }).catch((error) => {
-                    console.log("line error");
+                    // console.log("line error");
                     flag = 1;
                     return ;
                   });
@@ -393,9 +394,9 @@ try{
                     imageFullsize: imageurl[k].split("?")[0]
                   }
                 }).then(() => {
-                  console.log('send completed!');
+                  // console.log('send completed!');
                 }).catch((error) => {
-                  console.log("line error");
+                  // console.log("line error");
                   flag = 1;
                   return ;
                 });
@@ -405,13 +406,13 @@ try{
       }
 
       else {
-        //console.log(pro_URL);
+        //// console.log(pro_URL);
         const pro_URL = JSON.stringify(url);
         const last_URL = url[0];
-        console.log(no);
-        console.log(user_email);
-        console.log(pro_URL);
-        console.log(last_URL);
+        // console.log(no);
+        // console.log(user_email);
+        // console.log(pro_URL);
+        // console.log(last_URL);
 
         await Product.create({
           user_email,
@@ -439,7 +440,7 @@ try{
       }
     } 
     catch(error) {   
-      console.log("error in ");
+      // console.log("error in ");
     }
   }
  
@@ -452,9 +453,9 @@ try{
   //         imageFullsize: firstNotify_pro_image[i].split("?")[0]
   //       }
   //     }).then(() => {
-  //       console.log('send completed!');
+  //       // console.log('send completed!');
   //     }).catch((error) => {
-  //       console.log("line error");
+  //       // console.log("line error");
   //       flag = 1;
   //       return ;
   //     });
@@ -470,7 +471,7 @@ try{
   }
 
   await browser.close();
-  console.log("browser closed");
+  // console.log("browser closed");
   let sendData = {
     product_names: name_rlt,
     product_prices: price_rlt, 
@@ -482,7 +483,7 @@ try{
   
   res.json(sendData);
 } catch(error) {
-  console.log("error");
+  // console.log("error");
 }
 });
 
@@ -493,14 +494,14 @@ router.post('/yahoo', async (req, res) => {
     const end = await subUser.findOne({email});
     const cur_day = new Date();
 
-    console.log(end.endDate, cur_day);
+    // console.log(end.endDate, cur_day);
 
     if(end.endDate === null || end.endDate === undefined || end.endDate === "null" || end.endDate < cur_day) {
       res.json("expired");
       return ;
     }
   } catch (error) {
-    console.log("error in endDate");
+    // console.log("error in endDate");
   }
 
   let lineToken = req.body.token;
@@ -535,7 +536,7 @@ try{
   let image_url = [];
   let search_title = [];
   let flag = 0;
-  console.log("OK",data.length);
+  // console.log("OK",data.length);
   for(let i = 0 ; i < data.length; i++) {
     let part = data[i];
     let notifyTitle = part.Title;
@@ -552,7 +553,7 @@ try{
           await page.goto(targetURL);
           break;
         } catch (error) {
-          console.log("error in url");
+          // console.log("error in url");
         }
       }    
       while(1) { 
@@ -561,7 +562,7 @@ try{
           await page.goto(targetURL);
           break;
         } catch (error) {
-          console.log("error in url");
+          // console.log("error in url");
         }
       }       
       const len = name_rlt.length;   
@@ -571,7 +572,7 @@ try{
       const user_email = req.body.email;
       const no = i; 
       const preProducts = await YahProduct.findOne({user_email, no});
-      console.log(req.body.email);
+      // console.log(req.body.email);
       
       let products;   
       let products_price;
@@ -582,19 +583,19 @@ try{
         try {flg++;
           products =  await page.$$eval('.Product__titleLink', elements=> elements.map(item=>item.textContent));
     
-          console.log("select1");
+          // console.log("select1");
           products_price =  await page.$$eval('.u-textRed', elements=> elements.map(item=>item.textContent));
       
-          console.log("select2");
+          // console.log("select2");
           url = await page.$$eval('.Product__titleLink', anchors => [].map.call(anchors, a => a.href));
           
-          console.log("select3");
+          // console.log("select3");
           imageurl = await page.$$eval(".Product__imageData", anchors => [].map.call(anchors, img => img.src));
         
           if(products.length === 0 || products_price.length === 0 || url.length === 0 || imageurl.length === 0) continue;
           break;   
         } catch(error) {
-          console.log(error);
+          // console.log(error);
         }
       }
 
@@ -605,9 +606,9 @@ try{
 
             preProducts.pro_URL = JSON.stringify(url);
             preProducts.last_URL = url[0];
-            // console.log(url);
+            // // console.log(url);
             await preProducts.save();
-            console.log(i, "success!", products.length);
+            // console.log(i, "success!", products.length);
 
             for(let j = 0 ; j < Math.min(products.length, 10); j++) {
               name_rlt[j + len] = products[j];
@@ -644,9 +645,9 @@ try{
                       imageFullsize: imageurl[k].split("?")[0]
                     }
                   }).then(() => {
-                    console.log('send completed!');
+                    // console.log('send completed!');
                   }).catch((error) => {
-                    console.log("line error");
+                    // console.log("line error");
                     flag = 1;
                     return ;
                   });
@@ -677,9 +678,9 @@ try{
                     imageFullsize: imageurl[k].split("?")[0]
                   }
                 }).then(() => {
-                  console.log('send completed!');
+                  // console.log('send completed!');
                 }).catch((error) => {
-                  console.log("line error");
+                  // console.log("line error");
                   flag = 1;
                   return ;
                 });
@@ -689,13 +690,13 @@ try{
       }
 
       else {
-        //console.log(pro_URL);
+        //// console.log(pro_URL);
         const pro_URL = JSON.stringify(url);
         const last_URL = url[0];
-        console.log(no);
-        console.log(user_email);
-        console.log(pro_URL);
-        console.log(last_URL);
+        // console.log(no);
+        // console.log(user_email);
+        // console.log(pro_URL);
+        // console.log(last_URL);
 
         await YahProduct.create({
           user_email,
@@ -723,7 +724,7 @@ try{
       }
     } 
     catch(error) {   
-      console.log("error in ");
+      // console.log("error in ");
     }
   }  
  
@@ -735,9 +736,9 @@ try{
   //         imageFullsize: firstNotify_pro_image[i]
   //       }
   //     }).then(() => {
-  //       console.log('send completed!');
+  //       // console.log('send completed!');
   //     }).catch((error) => {
-  //       console.log("line error");
+  //       // console.log("line error");
   //       flag = 1;
   //       return ;
   //     });
@@ -752,7 +753,7 @@ try{
   }
   
   await browser.close();
-  console.log("browser closed");
+  // console.log("browser closed");
   let sendData = {
     product_names: name_rlt,
     product_prices: price_rlt, 
@@ -764,7 +765,7 @@ try{
   
   res.json(sendData);
 } catch(error) {
-  console.log("error");
+  // console.log("error");
 }
 });
 
