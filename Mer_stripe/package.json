@@ -1,0 +1,29 @@
+{
+  "name": "stripe-subscriptions-nodejs",
+  "version": "1.0.0",
+  "author": "sssaini",
+  "description": "Add Stripe Subscriptions Payments using Node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "lint": "standard",
+    "lint:fix": "standard --fix"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "memorystore": "^1.6.4",
+    "mongoose": "^5.13.20",
+    "nodemon": "^2.0.5",
+    "stripe": "^8.114.0"
+  },
+  "devDependencies": {
+    "standard": "^16.0.3"
+  }
+}
